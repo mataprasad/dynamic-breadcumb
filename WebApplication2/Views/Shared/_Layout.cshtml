@@ -1,0 +1,164 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Multi level dropdown menu BS3 - Bootsnipp.com</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    
+    <style type="text/css">
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu > .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-top: -6px;
+                margin-left: -1px;
+                -webkit-border-radius: 0 6px 6px 6px;
+                -moz-border-radius: 0 6px 6px;
+                border-radius: 0 6px 6px 6px;
+            }
+
+            .dropdown-submenu:hover > .dropdown-menu {
+                display: block;
+            }
+
+            .dropdown-submenu > a:after {
+                display: block;
+                content: " ";
+                float: right;
+                width: 0;
+                height: 0;
+                border-color: transparent;
+                border-style: solid;
+                border-width: 5px 0 5px 5px;
+                border-left-color: #ccc;
+                margin-top: 5px;
+                margin-right: -10px;
+            }
+
+            .dropdown-submenu:hover > a:after {
+                border-left-color: #fff;
+            }
+
+            .dropdown-submenu.pull-left {
+                float: none;
+            }
+
+                .dropdown-submenu.pull-left > .dropdown-menu {
+                    left: -100%;
+                    margin-left: 10px;
+                    -webkit-border-radius: 6px 0 6px 6px;
+                    -moz-border-radius: 6px 0 6px 6px;
+                    border-radius: 6px 0 6px 6px;
+                }
+    </style>
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/jquery.cookie.js"></script> 
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function fnGetBreadCumbLinkFromStorage() {
+            var json_string = $.cookie("hdnBreadCumb");//$("#hdnBreadCumb").val();
+
+            if (!json_string || json_string.length == 0) {
+                var temp = [];
+                for (var i = 0; i < 4; i++) {
+                    temp.push("");
+                }
+                $.cookie("hdnBreadCumb",JSON.stringify(temp));
+                json_string = $.cookie("hdnBreadCumb");
+            }
+            return JSON.parse(json_string);
+        }
+
+        function fnPushCurrentBreadCumbStatus() {
+            debugger;
+            var breadCumbData = fnGetBreadCumbLinkFromStorage();
+            var depth = parseInt($("#hdnDepth").val());
+            breadCumbData[depth] = window.location.href;
+            $.cookie("hdnBreadCumb", JSON.stringify(breadCumbData));
+        }
+
+        function fnLinkBreadCumb() {
+            debugger;
+            var breadCumbData = fnGetBreadCumbLinkFromStorage();
+            //var depth = parseInt($("#hdnDepth").val());
+
+            $.each($("#bread a"), function (i, obj) {
+                console.log(i);
+                $(obj).attr("href", breadCumbData[i]);
+            });
+
+        }
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="dropdown">
+                <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#">
+                    Root-1 <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+                    <li><a href="@Url.Action("root", "home", new { id = 1, name = "1" })">Root-1.1</a></li>
+                    <li><a href="@Url.Action("root", "home", new { id = 1, name = "2" })">Root-1.2</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-submenu">
+                        <a tabindex="-1" href="@Url.Action("root", "home", new { id = 1, name = "3" })">Root-1.3</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="@Url.Action("root", "home", new { id = 2, name = "4" })">Root-1.3.1</a></li>
+                            <li><a href="@Url.Action("root", "home", new { id = 2, name = "5" })">Root-1.3.2</a></li>
+                            <li class="dropdown-submenu">
+                                <a tabindex="-1" href="@Url.Action("root", "home", new { id = 2, name = "6" })">Root-1.3.3</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="@Url.Action("root", "home", new { id = 3, name = "7" })">Root-1.3.3.1</a></li>
+                                    <li><a href="@Url.Action("root", "home", new { id = 3, name = "8" })">Root-1.3.3.2</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="row">
+            <br />
+            <br />
+            @{
+                int depth_id = Convert.ToInt32(Url.RequestContext.RouteData.Values["id"]);
+                @Html.Raw("<span id='bread'>")
+                @Html.Raw("<a href=''>Root</a>")
+                if (depth_id > 1)
+                {
+                    @Html.Raw(" >> <a href=''>Root-1</a>")
+                }
+                if (depth_id > 2)
+                {
+                    @Html.Raw(" >> <a href=''>Root-2</a>")
+                }
+                @Html.Raw("</span>")
+            }
+
+
+
+            <h1>@Url.RequestContext.RouteData.Values["id"]</h1>
+            <h1>@Url.RequestContext.RouteData.Values["name"]</h1>
+
+        </div>
+    </div>
+    
+    <input type="hidden" name="hdnBreadCumb" id="hdnBreadCumb" value="" />
+    <input type="hidden" name="hdnDepth" id="hdnDepth" value="@Html.Raw(depth_id-1)" />
+    <script type="text/javascript">
+        fnPushCurrentBreadCumbStatus();
+        fnLinkBreadCumb();
+    </script>
+    @RenderBody()
+</body>
+</html>
